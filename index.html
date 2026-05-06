@@ -299,6 +299,120 @@
       opacity: 0.3;
     }
 
+    /* ── ZOOM BUTTON ── */
+    .card-image-wrap.has-image { cursor: zoom-in; }
+
+    .zoom-btn {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(26,26,24,0.78);
+      color: #fff;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-in;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.2s, transform 0.2s, background 0.2s;
+      z-index: 2;
+    }
+
+    .card-image-wrap:hover .zoom-btn,
+    .zoom-btn:focus-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .zoom-btn:hover { background: var(--accent); }
+
+    .zoom-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    @media (hover: none) {
+      .zoom-btn { opacity: 1; transform: none; }
+    }
+
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,9,0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .lightbox.open { opacity: 1; pointer-events: auto; }
+
+    .lightbox-inner {
+      position: relative;
+      max-width: min(1100px, 100%);
+      max-height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      transform: scale(0.96);
+      transition: transform 0.25s ease;
+    }
+
+    .lightbox.open .lightbox-inner { transform: scale(1); }
+
+    .lightbox img {
+      max-width: 100%;
+      max-height: calc(100vh - 9rem);
+      object-fit: contain;
+      border-radius: 6px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      background: var(--surface2);
+    }
+
+    .lightbox-caption {
+      color: rgba(255,255,255,0.85);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      text-align: center;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      z-index: 2;
+    }
+    .lightbox-close:hover { background: var(--accent); }
+    .lightbox-close svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; }
+
+    @media (max-width: 700px) {
+      .lightbox { padding: 1rem; }
+      .lightbox-close { top: 0.5rem; right: 0.5rem; }
+    }
+
     /* BADGE USADO EM ESTADO DE NOVO */
     .badge-used {
       position: absolute;
@@ -521,6 +635,17 @@
     <div class="count-label" id="countLabel"></div>
   </div>
   <div class="grid" id="productGrid"></div>
+</div>
+
+<!-- ══ LIGHTBOX ══ -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Imagem ampliada">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Fechar">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg>
+    </button>
+    <img id="lightboxImg" src="" alt="" />
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
 </div>
 
 <!-- ══ FOOTER ══ -->
@@ -1020,6 +1145,12 @@ function renderCards() {
   list.forEach((p, i) => {
     const hasDims = p.dims.a !== '—' || p.dims.l !== '—' || p.dims.c !== '—';
 
+    const zoomBtnHTML = p.image
+      ? `<button class="zoom-btn" type="button" aria-label="Ampliar imagem" data-zoom data-src="${p.image}" data-name="${p.name}">
+           <svg viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+         </button>`
+      : '';
+
     const imageHTML = p.image
       ? `<img class="card-image" src="${p.image}" alt="${p.name}" loading="lazy" />`
       : `<div class="card-image-placeholder">${p.icon}</div>`;
@@ -1040,9 +1171,10 @@ function renderCards() {
     card.className = 'card';
     card.style.animationDelay = `${Math.min(i * 0.04, 0.3)}s`;
     card.innerHTML = `
-      <div class="card-image-wrap">
+      <div class="card-image-wrap${p.image ? ' has-image' : ''}"${p.image ? ` data-zoom data-src="${p.image}" data-name="${p.name}"` : ''}>
         ${imageHTML}
         <div class="badge-used">Usado em estado de novo</div>
+        ${zoomBtnHTML}
       </div>
       <div class="card-body">
         <div class="card-cat">${p.category}</div>
@@ -1060,6 +1192,42 @@ function renderCards() {
 }
 
 renderCards();
+
+/* ══════════════════════════════════
+   LIGHTBOX
+   ══════════════════════════════════ */
+const lightbox     = document.getElementById('lightbox');
+const lightboxImg  = document.getElementById('lightboxImg');
+const lightboxCap  = document.getElementById('lightboxCaption');
+const lightboxClose = document.getElementById('lightboxClose');
+
+function openLightbox(src, name) {
+  lightboxImg.src = src;
+  lightboxImg.alt = name;
+  lightboxCap.textContent = name;
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+grid.addEventListener('click', e => {
+  const trigger = e.target.closest('[data-zoom]');
+  if (!trigger) return;
+  e.stopPropagation();
+  openLightbox(trigger.dataset.src, trigger.dataset.name);
+});
+
+lightbox.addEventListener('click', e => {
+  if (e.target === lightbox || e.target.closest('#lightboxClose')) closeLightbox();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && lightbox.classList.contains('open')) closeLightbox();
+});
 </script>
 </body>
 </html>
