@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Booking de Vendas Labs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f2ee;
+      --surface: #ffffff;
+      --surface2: #ede9e3;
+      --border: rgba(0,0,0,0.08);
+      --accent: #c8522a;
+      --accent2: #1a1a18;
+      --text: #1a1a18;
+      --muted: #7a7570;
+      --tag: #2e6b3e;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── GRAIN ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--accent2);
+      color: #fff;
+      padding: 0 3rem;
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+      gap: 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 3px solid var(--accent);
+    }
+
+    .logo-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 1rem 0;
+    }
+
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.05em;
+      line-height: 1;
+      color: #fff;
+    }
+
+    .logo span { color: var(--accent); }
+
+    .logo-sub {
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-top: 2px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .header-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.8rem;
+      border-radius: 4px;
+    }
+
+    /* ── HERO STRIP ── */
+    .hero {
+      background: var(--accent2);
+      color: #fff;
+      padding: 5rem 3rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: 'LABS';
+      position: absolute;
+      right: -1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18rem;
+      color: rgba(255,255,255,0.03);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 7vw, 6rem);
+      line-height: 0.95;
+      letter-spacing: 0.02em;
+      position: relative;
+      animation: fadeUp 0.7s ease both;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+      display: block;
+    }
+
+    .hero p {
+      margin-top: 1.5rem;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.9rem;
+      max-width: 480px;
+      line-height: 1.6;
+      position: relative;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 2.5rem;
+      position: relative;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+
+    .stat { }
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      padding: 1.5rem 3rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 69px;
+      z-index: 90;
+    }
+
+    .filter-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-right: 0.5rem;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--muted);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.4rem 0.9rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* ── SEARCH ── */
+    .search-wrap {
+      margin-left: auto;
+    }
+
+    .search-input {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.82rem;
+      padding: 0.42rem 0.9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      background: var(--bg);
+      color: var(--text);
+      width: 200px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--muted); }
+
+    /* ── SECTION HEADER ── */
+    .section-head {
+      padding: 2.5rem 3rem 1rem;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    .count-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border-top: 1px solid var(--border);
+      border-left: 1px solid var(--border);
+    }
+
+    .grid-wrap {
+      padding: 0 0 5rem;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      position: relative;
+      cursor: default;
+      transition: background 0.2s;
+      animation: fadeUp 0.5s ease both;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover { background: #fdf9f5; }
+
+    .card-image-wrap {
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .card-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .card:hover .card-image { transform: scale(1.04); }
+
+    .card-image-placeholder {
+      font-size: 3.5rem;
+      opacity: 0.3;
+    }
+
+    /* BADGE USADO EM ESTADO DE NOVO */
+    .badge-used {
+      position: absolute;
+      top: 12px;
+      left: 0;
+      background: var(--tag);
+      color: #fff;
+      font-size: 0.63rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.8rem 0.3rem 0.7rem;
+      clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+      padding-right: 1.1rem;
+    }
+
+    .card-body {
+      padding: 1.2rem 1.4rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .card-cat {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.3rem;
+    }
+
+    .card-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.25rem;
+      letter-spacing: 0.03em;
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 0.7rem;
+    }
+
+    .card-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 0.8rem;
+      flex: 1;
+    }
+
+    /* SPECS TABLE */
+    .card-specs {
+      background: var(--surface2);
+      border-radius: 4px;
+      padding: 0.6rem 0.8rem;
+      margin-bottom: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.3rem 0.5rem;
+    }
+
+    .spec-item {
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .spec-item strong {
+      color: var(--text);
+      font-weight: 600;
+      display: block;
+      font-size: 0.7rem;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      margin-top: auto;
+    }
+
+    .card-dims {
+      font-size: 0.68rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .card-dims strong {
+      display: block;
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.7rem;
+      margin-bottom: 1px;
+    }
+
+    .qty-badge {
+      background: var(--accent2);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    /* ── EMPTY ── */
+    .empty {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 5rem 0;
+      color: var(--muted);
+      background: var(--surface);
+    }
+
+    .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--accent2);
+      color: rgba(255,255,255,0.4);
+      padding: 2rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      color: #fff;
+      letter-spacing: 0.05em;
+    }
+    .footer-logo span { color: var(--accent); }
+
+    .footer-note { font-size: 0.72rem; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      header { padding: 0 1.2rem; }
+      .hero { padding: 3.5rem 1.2rem 2.5rem; }
+      .hero::before { font-size: 8rem; }
+      .filter-bar { padding: 1rem 1.2rem; top: 60px; }
+      .section-head { padding: 1.5rem 1.2rem 0.5rem; }
+      .search-wrap { margin-left: 0; width: 100%; }
+      .search-input { width: 100%; }
+      footer { padding: 1.5rem 1.2rem; }
+      .hero-stats { gap: 1.5rem; flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="logo-wrap">
+    <div class="logo">Booking de Vendas <span>Labs</span></div>
+    <div class="logo-sub">Catálogo de Equipamentos</div>
+  </div>
+  <div class="header-right">
+    <div class="header-badge">Usado em estado de novo</div>
+  </div>
+</header>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <h1>Equipamentos<br><em>premium</em> prontos<br>para uso.</h1>
+  <p>Todos os itens são seminovos em excelente estado de conservação, com medidas e especificações técnicas detalhadas.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num" id="totalItems">0</div>
+      <div class="stat-label">Itens no catálogo</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="totalCats">0</div>
+      <div class="stat-label">Categorias</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="totalUnits">0</div>
+      <div class="stat-label">Unidades disponíveis</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FILTER + SEARCH ══ -->
+<div class="filter-bar" id="filterBar">
+  <span class="filter-label">Filtrar:</span>
+  <button class="filter-btn active" data-cat="todos">Todos</button>
+  <div class="search-wrap">
+    <input class="search-input" id="searchInput" type="text" placeholder="Buscar item..." />
+  </div>
+</div>
+
+<!-- ══ GRID ══ -->
+<div class="grid-wrap">
+  <div class="section-head">
+    <div class="section-title">Itens disponíveis</div>
+    <div class="count-label" id="countLabel"></div>
+  </div>
+  <div class="grid" id="productGrid"></div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-logo">Booking de Vendas <span>Labs</span></div>
+  <div class="footer-note">Catálogo informativo · Todos os itens classificados como "Usado em estado de novo" · Entre em contato para adquirir</div>
+</footer>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   PRODUTOS — extraídos da planilha + specs da internet
+   ══════════════════════════════════════════════════════════ */
+const products = [
+  /* ── PERIFÉRICOS ── */
+  {
+    name: "Mouse com Fio Multilaser",
+    category: "Periféricos",
+    qty: 29,
+    desc: "Mouse óptico com fio USB plug-and-play, botões silenciosos, scroll de precisão e design ergonômico.",
+    specs: [
+      { k: "Conexão", v: "USB com fio" },
+      { k: "Tipo", v: "Óptico" },
+      { k: "Compatível", v: "Windows/Linux/Mac" },
+      { k: "Layout", v: "Plug & Play" },
+    ],
+    dims: { a: "—", l: "—", c: "—" },
+    icon: "🖱️",
+  },
+  {
+    name: "Suporte para Notebook",
+    category: "Periféricos",
+    qty: 31,
+    desc: "Suporte ergonômico para notebook, eleva a tela à altura ideal, melhora a ventilação e postura durante o trabalho.",
+    specs: [
+      { k: "Material", v: "Plástico/Metal" },
+      { k: "Compatível", v: "Notebooks em geral" },
+      { k: "Ergonomia", v: "Ajuste de altura" },
+      { k: "Ventilação", v: "Sim" },
+    ],
+    dims: { a: "—", l: "—", c: "—" },
+    icon: "💻",
+  },
+  {
+    name: "Teclado Multilaser",
+    category: "Periféricos",
+    qty: 31,
+    desc: "Teclado USB Slim com layout ABNT2 padrão brasileiro, teclas macias e silenciosas, resistente à água e design compacto.",
+    specs: [
+      { k: "Conexão", v: "USB com fio" },
+      { k: "Layout", v: "ABNT2 Português BR" },
+      { k: "Teclas", v: "Membrana silenciosa" },
+      { k: "Resistência", v: "Respingos de água" },
+    ],
+    dims: { a: "2,7 cm", l: "13 cm", c: "44 cm" },
+    icon: "⌨️",
+  },
+
+  /* ── ELETRODOMÉSTICOS ── */
+  {
+    name: "Bebedouro Elétrico 127V",
+    category: "Eletrodomésticos",
+    qty: 1,
+    desc: "Bebedouro elétrico compacto, água gelada e natural, sistema de refrigeração eficiente. Voltagem 127V.",
+    specs: [
+      { k: "Voltagem", v: "127V" },
+      { k: "Funções", v: "Gelado e Natural" },
+      { k: "Refrigeração", v: "Compressor" },
+      { k: "Certificação", v: "Inmetro" },
+    ],
+    dims: { a: "1,15 m", l: "0,38 m", c: "0,32 m" },
+    icon: "🧊",
+  },
+  {
+    name: "Cafeteira Elétrica 32 Xícaras 127V Mondial",
+    category: "Eletrodomésticos",
+    qty: 1,
+    desc: "Cafeteira elétrica de grande capacidade (32 xícaras), resistência de alta performance, ideal para ambientes corporativos.",
+    specs: [
+      { k: "Capacidade", v: "32 xícaras" },
+      { k: "Voltagem", v: "127V" },
+      { k: "Marca", v: "Mondial" },
+      { k: "Tipo", v: "Filtro / coado" },
+    ],
+    dims: { a: "1,79 m", l: "0,67 m", c: "0,63 m" },
+    icon: "☕",
+  },
+  {
+    name: "Geladeira Inverter Frost Free Samsung RT38K5A0KS9 385 L",
+    category: "Eletrodomésticos",
+    qty: 1,
+    desc: "Refrigerador duplex Samsung 385L com tecnologia Digital Inverter, Frost Free, All-around Cooling, eficiência energética classe A e filtro desodorizador. Bivolt.",
+    specs: [
+      { k: "Capacidade", v: "385L (298+87 freezer)" },
+      { k: "Voltagem", v: "Bivolt (127/220V)" },
+      { k: "Tecnologia", v: "Digital Inverter + Frost Free" },
+      { k: "Eficiência", v: "Classe A · 39 kWh/mês" },
+    ],
+    dims: { a: "1,79 m", l: "0,67 m", c: "0,63 m" },
+    icon: "🧊",
+    image: "https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=600&q=80",
+  },
+  {
+    name: "Microondas Britania/Philco 25L BME25 127V",
+    category: "Eletrodomésticos",
+    qty: 1,
+    desc: "Micro-ondas 25 litros com porta espelhada, painel digital, funções descongelar por peso e tempo, trava de segurança infantil e prato giratório de 27 cm.",
+    specs: [
+      { k: "Capacidade", v: "25 litros" },
+      { k: "Potência", v: "1400W" },
+      { k: "Voltagem", v: "127V" },
+      { k: "Eficiência", v: "Classe A" },
+    ],
+    dims: { a: "0,32 m", l: "0,48 m", c: "0,36 m" },
+    icon: "📡",
+  },
+
+  /* ── INFORMÁTICA / AV ── */
+  {
+    name: "Impressora Epson L3250",
+    category: "Informática",
+    qty: 1,
+    desc: "Multifuncional EcoTank 3 em 1 (imprime, copia, digitaliza) com Wi-Fi, Wi-Fi Direct e USB. Sistema de tanque de tinta sem cartuchos — até 4.500 pág. preto ou 7.500 coloridas por kit.",
+    specs: [
+      { k: "Velocidade", v: "33 ppm (P&B) · 15 ppm (Cor)" },
+      { k: "Resolução", v: "5.760 × 1.440 dpi" },
+      { k: "Conectividade", v: "USB, Wi-Fi, Wi-Fi Direct" },
+      { k: "Scanner", v: "1.200 × 2.400 dpi" },
+    ],
+    dims: { a: "—", l: "—", c: "—" },
+    icon: "🖨️",
+    image: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=600&q=80",
+  },
+  {
+    name: "Monitor AOC 21,5\" com Fonte",
+    category: "Informática",
+    qty: 41,
+    desc: "Monitor LED Full HD 21,5\" painel VA, resolução 1920×1080, taxa de atualização 100Hz, tempo de resposta 1ms MPRT, Adaptive-Sync, entradas HDMI e VGA, suporte VESA 100×100.",
+    specs: [
+      { k: "Tela", v: "21,5\" LED VA Full HD" },
+      { k: "Resolução", v: "1920 × 1080 · 100Hz" },
+      { k: "Resposta", v: "1ms MPRT" },
+      { k: "Entradas", v: "1× HDMI 1.4 + 1× VGA" },
+    ],
+    dims: { a: "0,40 m", l: "0,23 m", c: "0,49 m" },
+    icon: "🖥️",
+    image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600&q=80",
+  },
+
+  /* ── ILUMINAÇÃO ── */
+  {
+    name: "Luminária de Teto Lustre Pendente",
+    category: "Iluminação",
+    qty: 2,
+    desc: "Lustre pendente para teto, design decorativo, compatível com lâmpadas E27, ideal para escritórios, salas de reunião e áreas de convivência.",
+    specs: [
+      { k: "Tipo", v: "Pendente / Lustre" },
+      { k: "Soquete", v: "E27" },
+      { k: "Instalação", v: "Teto (fixo)" },
+      { k: "Tensão", v: "127/220V" },
+    ],
+    dims: { a: "0,25 m", l: "0,72 m", c: "0,72 m" },
+    icon: "💡",
+  },
+  {
+    name: "Luminária de Teto Mesa",
+    category: "Iluminação",
+    qty: 5,
+    desc: "Luminária de teto com perfil slim para iluminação de mesa de trabalho e bancadas. Fácil instalação, ideal para ambientes corporativos.",
+    specs: [
+      { k: "Tipo", v: "Sobrepor / Mesa" },
+      { k: "Perfil", v: "Slim" },
+      { k: "Instalação", v: "Teto" },
+      { k: "Tensão", v: "127/220V" },
+    ],
+    dims: { a: "0,06 m", l: "1,23 m", c: "0,11 m" },
+    icon: "💡",
+  },
+  {
+    name: "Plafons",
+    category: "Iluminação",
+    qty: 1,
+    desc: "Plafon de embutir ou sobrepor para teto, distribuição uniforme de luz, acabamento em plástico e alumínio, compatível com lâmpadas LED.",
+    specs: [
+      { k: "Tipo", v: "Embutir / Sobrepor" },
+      { k: "Compatível", v: "Lâmpadas LED" },
+      { k: "Material", v: "Plástico + Alumínio" },
+      { k: "Tensão", v: "127/220V" },
+    ],
+    dims: { a: "—", l: "—", c: "—" },
+    icon: "💡",
+  },
+
+  /* ── MOBILIÁRIO / CADEIRAS ── */
+  {
+    name: "Cadeira Cozinha Branco FlexForm",
+    category: "Mobiliário",
+    qty: 6,
+    desc: "Cadeira para cozinha/copa em polipropileno branco FlexForm, empilhável, fácil higienização, estrutura resistente com pés plásticos antiarranhão.",
+    specs: [
+      { k: "Material", v: "Polipropileno" },
+      { k: "Cor", v: "Branco" },
+      { k: "Marca", v: "FlexForm" },
+      { k: "Empilhável", v: "Sim" },
+    ],
+    dims: { a: "0,82 m", l: "0,58 m", c: "0,55 m" },
+    icon: "🪑",
+  },
+  {
+    name: "Cadeira Cozinha/Jardim Preto",
+    category: "Mobiliário",
+    qty: 9,
+    desc: "Cadeira multiuso para cozinha e jardim em polipropileno preto, design moderno, leve, resistente a UV e chuva, empilhável.",
+    specs: [
+      { k: "Material", v: "Polipropileno" },
+      { k: "Cor", v: "Preto" },
+      { k: "Resistência", v: "UV / Intempéries" },
+      { k: "Empilhável", v: "Sim" },
+    ],
+    dims: { a: "0,82 m", l: "0,42 m", c: "0,48 m" },
+    icon: "🪑",
+  },
+  {
+    name: "Cadeira Escritório Fixa Preto Flexform",
+    category: "Mobiliário",
+    qty: 10,
+    desc: "Cadeira de escritório fixa (sem rodas) com assento e encosto estofado em tecido preto, estrutura tubular em aço, pés fixos com sapatas.",
+    specs: [
+      { k: "Tipo", v: "Fixa (sem rodas)" },
+      { k: "Material", v: "Aço + Tecido" },
+      { k: "Cor", v: "Preto" },
+      { k: "Marca", v: "FlexForm" },
+    ],
+    dims: { a: "0,93 m", l: "0,62 m", c: "0,53 m" },
+    icon: "🪑",
+  },
+  {
+    name: "Cadeira Escritório Giratória Preto Flexform",
+    category: "Mobiliário",
+    qty: 32,
+    desc: "Cadeira giratória de escritório com regulagem de altura pneumática, assento e encosto estofados em tecido preto, rodízios para piso duro.",
+    specs: [
+      { k: "Tipo", v: "Giratória com rodízios" },
+      { k: "Regulagem", v: "Altura pneumática" },
+      { k: "Cor", v: "Preto" },
+      { k: "Marca", v: "FlexForm" },
+    ],
+    dims: { a: "1,00 m", l: "0,74 m", c: "0,70 m" },
+    icon: "🪑",
+  },
+
+  /* ── MESAS ── */
+  {
+    name: "Mesa Redonda Industrial com Tampo de Vidro 1,4m de Diâmetro",
+    category: "Mobiliário",
+    qty: 2,
+    desc: "Mesa redonda estilo industrial com tampo de vidro temperado e estrutura metálica, diâmetro de 1,4 m, ideal para salas de reunião.",
+    specs: [
+      { k: "Tampo", v: "Vidro temperado" },
+      { k: "Estrutura", v: "Metal / Ferro" },
+      { k: "Diâmetro", v: "1,40 m" },
+      { k: "Estilo", v: "Industrial" },
+    ],
+    dims: { a: "0,76 m", l: "1,40 m (Ø)", c: "—" },
+    icon: "🪵",
+  },
+  {
+    name: "Balcão da Recepção",
+    category: "Mobiliário",
+    qty: 1,
+    desc: "Balcão de recepção com tampo amplo, compartimentos inferiores e design profissional para espaços de atendimento.",
+    specs: [
+      { k: "Tipo", v: "Balcão de recepção" },
+      { k: "Compartimentos", v: "Sim (parte inferior)" },
+      { k: "Acabamento", v: "MDF / melamínico" },
+      { k: "Montagem", v: "Parafusado" },
+    ],
+    dims: { a: "1,04 m", l: "1,75 m", c: "1,36 m" },
+    icon: "🪵",
+  },
+  {
+    name: "Balcão/Armário Multiuso 2 Portas Azul Planejado",
+    category: "Mobiliário",
+    qty: 1,
+    desc: "Balcão planejado com armário de 2 portas em cor azul, ideal para copa ou área administrativa, prateleiras internas reguláveis.",
+    specs: [
+      { k: "Portas", v: "2 portas" },
+      { k: "Cor", v: "Azul" },
+      { k: "Material", v: "MDF planejado" },
+      { k: "Prateleiras", v: "Reguláveis" },
+    ],
+    dims: { a: "0,96 m", l: "1,02 m", c: "0,52 m" },
+    icon: "🗄️",
+  },
+  {
+    name: "Balcão/Armário Multiuso 4 Portas Azul Planejado",
+    category: "Mobiliário",
+    qty: 1,
+    desc: "Balcão planejado com armário de 4 portas em cor azul, alta capacidade de armazenamento, ideal para estoques ou áreas de serviço.",
+    specs: [
+      { k: "Portas", v: "4 portas" },
+      { k: "Cor", v: "Azul" },
+      { k: "Material", v: "MDF planejado" },
+      { k: "Prateleiras", v: "Reguláveis" },
+    ],
+    dims: { a: "0,96 m", l: "2,50 m", c: "0,52 m" },
+    icon: "🗄️",
+  },
+  {
+    name: "Mesa Curta Tipo Industrial",
+    category: "Mobiliário",
+    qty: 2,
+    desc: "Mesa compacta estilo industrial com estrutura de ferro e tampo em MDF ou madeira, resistente ao uso intenso em ambientes de trabalho.",
+    specs: [
+      { k: "Estilo", v: "Industrial" },
+      { k: "Estrutura", v: "Ferro pintado" },
+      { k: "Tampo", v: "MDF / Madeira" },
+      { k: "Uso", v: "Escritório / Estação" },
+    ],
+    dims: { a: "0,75 m", l: "0,61 m", c: "2,00 m" },
+    icon: "🪵",
+  },
+  {
+    name: "Mesa Grade Tipo Industrial",
+    category: "Mobiliário",
+    qty: 8,
+    desc: "Mesa tipo grade industrial para estações de trabalho em open office, estrutura robusta em ferro, tampo amplo para dois monitores.",
+    specs: [
+      { k: "Estilo", v: "Industrial / Open Office" },
+      { k: "Estrutura", v: "Ferro / Aço" },
+      { k: "Tampo", v: "MDF melamínico" },
+      { k: "Capacidade", v: "Uso intensivo" },
+    ],
+    dims: { a: "0,75 m", l: "1,22 m", c: "2,00 m" },
+    icon: "🪵",
+  },
+  {
+    name: "Mesa Grande Tipo Sala de Reunião",
+    category: "Mobiliário",
+    qty: 1,
+    desc: "Mesa de reunião de grande porte, tampo em MDF com acabamento melamínico, pés em metal cromado ou ferro, comporta até 12 pessoas.",
+    specs: [
+      { k: "Uso", v: "Sala de reunião" },
+      { k: "Capacidade", v: "Até 12 pessoas" },
+      { k: "Tampo", v: "MDF melamínico" },
+      { k: "Estrutura", v: "Metal / Ferro" },
+    ],
+    dims: { a: "0,74 m", l: "1,00 m", c: "3,00 m" },
+    icon: "🪵",
+  },
+
+  /* ── PAINÉIS / DIVISÓRIAS ── */
+  {
+    name: "Móveis Planejados Divisória Copa",
+    category: "Divisórias e Painéis",
+    qty: 1,
+    desc: "Divisória planejada para separação de área de copa do restante do ambiente, com nicho superior e armário inferior embutido.",
+    specs: [
+      { k: "Ambiente", v: "Copa" },
+      { k: "Material", v: "MDF planejado" },
+      { k: "Função", v: "Divisória + Armário" },
+      { k: "Acabamento", v: "Melamínico" },
+    ],
+    dims: { a: "—", l: "—", c: "—" },
+    icon: "🚪",
+  },
+  {
+    name: "Móveis Planejados do Auditório – Bancos",
+    category: "Divisórias e Painéis",
+    qty: 1,
+    desc: "Bancos planejados para auditório, estrutura fixa em MDF ou madeira, assento estofado ou laminado, comporta múltiplas pessoas por módulo.",
+    specs: [
+      { k: "Ambiente", v: "Auditório" },
+      { k: "Tipo", v: "Banco fixo" },
+      { k: "Material", v: "MDF / Madeira" },
+      { k: "Assento", v: "Estofado ou laminado" },
+    ],
+    dims: { a: "—", l: "—", c: "—" },
+    icon: "🪑",
+  },
+  {
+    name: "Móveis Planejados Painel Divisória Auditório",
+    category: "Divisórias e Painéis",
+    qty: 1,
+    desc: "Painel divisório planejado para auditório, painéis removíveis ou fixos em MDF, acabamento melamínico com perfis de alumínio.",
+    specs: [
+      { k: "Ambiente", v: "Auditório" },
+      { k: "Material", v: "MDF + Alumínio" },
+      { k: "Tipo", v: "Painel divisório" },
+      { k: "Acabamento", v: "Melamínico" },
+    ],
+    dims: { a: "—", l: "—", c: "—" },
+    icon: "🚪",
+  },
+  {
+    name: "Móveis Planejados Painel Divisória Entrada/Recepção",
+    category: "Divisórias e Painéis",
+    qty: 1,
+    desc: "Painel planejado para área de entrada e recepção, com nichos decorativos, painel ripado ou laminado, cria identidade visual ao espaço.",
+    specs: [
+      { k: "Ambiente", v: "Entrada / Recepção" },
+      { k: "Material", v: "MDF planejado" },
+      { k: "Tipo", v: "Painel + Nichos" },
+      { k: "Acabamento", v: "Ripado / Melamínico" },
+    ],
+    dims: { a: "—", l: "—", c: "—" },
+    icon: "🚪",
+  },
+];
+
+/* ══════════════════════════════════
+   RENDER
+   ══════════════════════════════════ */
+const grid        = document.getElementById('productGrid');
+const filterBar   = document.getElementById('filterBar');
+const searchInput = document.getElementById('searchInput');
+const countLabel  = document.getElementById('countLabel');
+
+/* stats */
+const cats  = [...new Set(products.map(p => p.category))];
+const total = products.reduce((s, p) => s + p.qty, 0);
+document.getElementById('totalItems').textContent  = products.length;
+document.getElementById('totalCats').textContent   = cats.length;
+document.getElementById('totalUnits').textContent  = total;
+
+/* filter buttons */
+cats.forEach(cat => {
+  const btn = document.createElement('button');
+  btn.className    = 'filter-btn';
+  btn.dataset.cat  = cat;
+  btn.textContent  = cat;
+  filterBar.insertBefore(btn, filterBar.querySelector('.search-wrap'));
+});
+
+let activeCat = 'todos';
+let searchTerm = '';
+
+filterBar.addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  activeCat = btn.dataset.cat;
+  filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCards();
+});
+
+searchInput.addEventListener('input', () => {
+  searchTerm = searchInput.value.toLowerCase().trim();
+  renderCards();
+});
+
+function iconForCat(cat) {
+  const map = { 'Periféricos':'🖱️','Eletrodomésticos':'⚡','Informática':'💻','Iluminação':'💡','Mobiliário':'🪑','Divisórias e Painéis':'🚪' };
+  return map[cat] || '📦';
+}
+
+function renderCards() {
+  let list = activeCat === 'todos' ? products : products.filter(p => p.category === activeCat);
+  if (searchTerm) list = list.filter(p =>
+    p.name.toLowerCase().includes(searchTerm) ||
+    p.desc.toLowerCase().includes(searchTerm) ||
+    p.category.toLowerCase().includes(searchTerm)
+  );
+
+  countLabel.textContent = `${list.length} item${list.length !== 1 ? 's' : ''} encontrado${list.length !== 1 ? 's' : ''}`;
+  grid.innerHTML = '';
+
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div>Nenhum item encontrado.</div></div>`;
+    return;
+  }
+
+  list.forEach((p, i) => {
+    const hasDims = p.dims.a !== '—' || p.dims.l !== '—' || p.dims.c !== '—';
+
+    const imageHTML = p.image
+      ? `<img class="card-image" src="${p.image}" alt="${p.name}" loading="lazy" />`
+      : `<div class="card-image-placeholder">${p.icon}</div>`;
+
+    const specsHTML = p.specs.map(s =>
+      `<div class="spec-item"><strong>${s.k}</strong>${s.v}</div>`
+    ).join('');
+
+    const dimsHTML = hasDims
+      ? `<div class="card-dims"><strong>Dimensões (A × L × C)</strong>${p.dims.a} × ${p.dims.l} × ${p.dims.c}</div>`
+      : `<div class="card-dims"><strong>Categoria</strong>${iconForCat(p.category)} ${p.category}</div>`;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.animationDelay = `${Math.min(i * 0.04, 0.3)}s`;
+    card.innerHTML = `
+      <div class="card-image-wrap">
+        ${imageHTML}
+        <div class="badge-used">Usado em estado de novo</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cat">${p.category}</div>
+        <div class="card-name">${p.name}</div>
+        <div class="card-desc">${p.desc}</div>
+        <div class="card-specs">${specsHTML}</div>
+        <div class="card-footer">
+          ${dimsHTML}
+          <div class="qty-badge">Qtd: ${p.qty}</div>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+renderCards();
+</script>
+</body>
+</html>
